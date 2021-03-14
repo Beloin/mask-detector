@@ -1,50 +1,63 @@
 import argparse
 
 
-def train(args):
-    None
+def train(debug: bool):
+    from mask_detection_trainer import MaskDetectionTrainer
+    print('Train Model')
+
+    # Train args
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-d", "--dataset", required=True,
+                    help="path to input dataset. Having with_mask and without_mask dir")
+    ap.add_argument("-p", "--plot", type=str, default="plot.png",
+                    help="path to output loss/accuracy plot")
+    ap.add_argument("-m", "--model", type=str,
+                    default="mask_detector.model",
+                    help="path to output face mask detector model")
+
+    args = vars(ap.parse_known_args()[0])
+
+    detectorTrainer = MaskDetectionTrainer(
+        args['dataset'], args['plot'], args['model'], debug)
+    detectorTrainer.train_and_save()
 
 
-def predict(args):
-    None
+def predict(debug: bool):
+    print('Predict image')
+    from mask_detector import MaskDetector
+
+    ap = argparse.ArgumentParser()
+    # Predict args
+    ap.add_argument("-i", "--image", required=True,
+                    help="path to input image")
+    ap.add_argument("-f", "--face", type=str,
+                    default="face_detector",
+                    help="path to face detector model directory")
+    ap.add_argument("-m", "--model", type=str,
+                    default="mask_detector.model",
+                    help="Path to trained face mask detector model")
+    ap.add_argument("-c", "--confidence", type=float, default=0.5,
+                    help="Minimum probability to filter weak detections")
+
+    args = vars(ap.parse_known_args()[0])
+
+    detector = MaskDetector(
+        args['image'], args['face'], args['model'], args['confidence'], debug)
+
+    detector.predict()
 
 
-ap = argparse.ArgumentParser()
+if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
 
-# Train | Predict check
-ap.add_argument('--train', const=train, dest='fun')
-ap.add_argument('--predict', const=predict, dest='fun')
+    # Helper args
+    ap.add_argument('--debug', nargs='?', const=True,
+                    required=False, default=False)
 
-# Helper args
-ap.add_argument('--debug', required=False, default=False, type=bool)
-ap.add_argument('-h', '--help', required=False, type=bool)
+    # Train | Predict check
+    ap.add_argument('--train', nargs='?', const=train, dest='fun')
+    ap.add_argument('--predict', nargs='?', const=predict, dest='fun')
 
-# Train args
-ap.add_argument("-i", "--image", required=True,
-                help="path to input image")
-ap.add_argument("-f", "--face", type=str,
-                default="face_detector",
-                help="path to face detector model directory")
-ap.add_argument("-m", "--model", type=str,
-                default="mask_detector.model",
-                help="Path to trained face mask detector model")
-ap.add_argument("-c", "--confidence", type=float, default=0.5,
-                help="Minimum probability to filter weak detections")
+    args = vars(ap.parse_known_args()[0])
 
-# Predict args
-ap = argparse.ArgumentParser()
-ap.add_argument("-d", "--dataset", required=True,
-                help="path to input dataset")
-ap.add_argument("-p", "--plot", type=str, default="plot.png",
-                help="path to output loss/accuracy plot")
-ap.add_argument("-m", "--model", type=str,
-                default="mask_detector.model",
-                help="path to output face mask detector model")
-
-args = vars(ap.parse_args())
-
-if args['help']:
-    ap.print_help()
-else:
-    # Roda a função pedida.
-    args.fun(args)
+    args['fun'](args['debug'])
