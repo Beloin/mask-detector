@@ -67,6 +67,8 @@ for imagePath in imagePaths:
     # update the data and labels lists, respectively
     data.append(image)
     labels.append(label)
+
+
 # convert the data and labels to NumPy arrays
 data = np.array(data, dtype="float32")
 labels = np.array(labels)
@@ -76,6 +78,8 @@ lb = LabelBinarizer()
 labels = lb.fit_transform(labels)
 labels = to_categorical(labels)
 debug_print("One Hot:", labels[:5])
+
+
 # partition the data into training and testing splits using 80% of
 # the data for training and the remaining 20% for testing
 (trainX, testX, trainY, testY) = train_test_split(data, labels,
