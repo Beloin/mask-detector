@@ -19,3 +19,5 @@ python3 main.py --train --dataset dataset
 ```
 python3 main.py --predict --image <path to image.jpg>
 ```
+
+The predictions will be on the ./example directory with its own timestamp.
